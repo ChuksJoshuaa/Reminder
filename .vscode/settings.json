@@ -1,10 +1,6 @@
 {
   "python.defaultInterpreterPath": "${workspaceFolder}/server/venv/bin/python",
   "python.terminal.activateEnvironment": true,
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": false,
-  "python.linting.flake8Enabled": true,
-  "python.formatting.provider": "black",
   "[python]": {
     "editor.defaultFormatter": "ms-python.python",
     "editor.formatOnSave": true,

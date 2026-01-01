@@ -5,7 +5,7 @@ const phoneRegex = /^\+[1-9]\d{1,14}$/
 export const reminderSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
   message: z.string().min(1, "Message is required").max(500, "Message must be less than 500 characters"),
-  phoneNumber: z.string().regex(phoneRegex, "Phone number must be in E.164 format (e.g., +14155552671)"),
+  phoneNumber: z.string().regex(phoneRegex, "Phone number must be in E.164 format (e.g., +18263349907)"),
   scheduledFor: z.string().min(1, "Date and time are required"),
   timezone: z.string().min(1, "Timezone is required"),
 })

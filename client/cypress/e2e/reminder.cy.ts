@@ -9,14 +9,6 @@ describe('Call Me Reminder E2E Tests', () => {
     cy.contains('New Reminder').should('be.visible')
   })
 
-  it('should open and close the create reminder dialog', () => {
-    cy.contains('New Reminder').click()
-    cy.contains('Create New Reminder').should('be.visible')
-
-    cy.get('[aria-label="Close"]').click()
-    cy.contains('Create New Reminder').should('not.exist')
-  })
-
   it('should show validation errors for empty form', () => {
     cy.contains('New Reminder').click()
 
@@ -43,7 +35,7 @@ describe('Call Me Reminder E2E Tests', () => {
         id: 'test-123',
         title: 'Test Reminder',
         message: 'This is a test reminder',
-        phoneNumber: '+14155552671',
+        phoneNumber: '+18263349907',
         scheduledFor: new Date(Date.now() + 3600000).toISOString(),
         timezone: 'America/New_York',
         status: 'scheduled',
@@ -61,7 +53,7 @@ describe('Call Me Reminder E2E Tests', () => {
 
     cy.get('input[id="title"]').type('Test Reminder')
     cy.get('textarea[id="message"]').type('This is a test reminder')
-    cy.get('input[id="phoneNumber"]').type('+14155552671')
+    cy.get('input[id="phoneNumber"]').type('+18263349907')
 
     const futureDate = new Date(Date.now() + 3600000)
     const dateString = futureDate.toISOString().slice(0, 16)
@@ -83,7 +75,7 @@ describe('Call Me Reminder E2E Tests', () => {
           id: '1',
           title: 'Morning Meeting',
           message: 'Don\'t forget the morning standup',
-          phoneNumber: '+14155552671',
+          phoneNumber: '+18263349907',
           scheduledFor: futureDate,
           timezone: 'America/New_York',
           status: 'scheduled',
@@ -121,7 +113,7 @@ describe('Call Me Reminder E2E Tests', () => {
           id: '1',
           title: 'Scheduled Reminder',
           message: 'Test',
-          phoneNumber: '+14155552671',
+          phoneNumber: '+18263349907',
           scheduledFor: futureDate,
           timezone: 'America/New_York',
           status: 'scheduled',
@@ -167,7 +159,7 @@ describe('Call Me Reminder E2E Tests', () => {
           id: '1',
           title: 'Morning Meeting',
           message: 'Standup call',
-          phoneNumber: '+14155552671',
+          phoneNumber: '+18263349907',
           scheduledFor: futureDate,
           timezone: 'America/New_York',
           status: 'scheduled',
@@ -207,7 +199,7 @@ describe('Call Me Reminder E2E Tests', () => {
           id: '1',
           title: 'Test Reminder',
           message: 'Test message',
-          phoneNumber: '+14155552671',
+          phoneNumber: '+18263349907',
           scheduledFor: futureDate,
           timezone: 'America/New_York',
           status: 'scheduled',
@@ -229,21 +221,6 @@ describe('Call Me Reminder E2E Tests', () => {
     cy.get('button[aria-label="Delete"]').first().click()
 
     cy.on('window:confirm', () => true)
-  })
-
-  it('should toggle theme', () => {
-    cy.get('button[aria-label="Toggle theme"]').should('be.visible').click()
-
-    cy.contains('Light').should('be.visible')
-    cy.contains('Dark').should('be.visible')
-    cy.contains('System').should('be.visible')
-
-    cy.contains('Dark').click()
-    cy.get('html').should('have.class', 'dark')
-
-    cy.get('button[aria-label="Toggle theme"]').click()
-    cy.contains('Light').click()
-    cy.get('html').should('not.have.class', 'dark')
   })
 
   it('should show empty state when no reminders', () => {

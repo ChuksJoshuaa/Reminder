@@ -47,6 +47,7 @@ export const COMMON_TIMEZONES = [
   { value: "Pacific/Honolulu", label: "Hawaii Time (HT)" },
   { value: "Europe/London", label: "London (GMT/BST)" },
   { value: "Europe/Paris", label: "Paris (CET/CEST)" },
+  { value: "Africa/Lagos", label: "Lagos, Nigeria (WAT)" },
   { value: "Asia/Tokyo", label: "Tokyo (JST)" },
   { value: "Asia/Shanghai", label: "Shanghai (CST)" },
   { value: "Asia/Dubai", label: "Dubai (GST)" },

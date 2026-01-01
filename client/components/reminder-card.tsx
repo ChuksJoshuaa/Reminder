@@ -3,12 +3,13 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trash2, Edit, Phone, Clock, Calendar } from "lucide-react"
+import { Trash2, Edit, Phone, Clock, Calendar, Eye } from "lucide-react"
 import type { Reminder, ReminderStatus } from "@/types"
 import { formatDateTime, getTimeRemaining, isReminderDue } from "@/lib/date-utils"
 import { maskPhoneNumber } from "@/lib/validation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ReminderForm } from "./reminder-form"
+import { ReminderViewDialog } from "./reminder-view-dialog"
 import { useUpdateReminder, useDeleteReminder } from "@/hooks/use-reminders"
 import type { ReminderFormData } from "@/lib/validation"
 import { useState } from "react"
@@ -25,6 +26,7 @@ const statusConfig: Record<ReminderStatus, { variant: "default" | "success" | "d
 
 export function ReminderCard({ reminder }: ReminderCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isViewOpen, setIsViewOpen] = useState(false)
   const updateReminder = useUpdateReminder()
   const deleteReminder = useDeleteReminder()
 
@@ -36,7 +38,7 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
           title: data.title,
           message: data.message,
           phoneNumber: data.phoneNumber,
-          scheduledFor: new Date(data.scheduledFor).toISOString(),
+          scheduledFor: data.scheduledFor,
           timezone: data.timezone,
         },
       },
@@ -67,6 +69,9 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
             </Badge>
           </div>
           <div className="flex gap-2 shrink-0">
+            <Button variant="ghost" size="icon" onClick={() => setIsViewOpen(true)}>
+              <Eye className="h-4 w-4" />
+            </Button>
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" disabled={reminder.status !== "scheduled"}>
@@ -84,7 +89,7 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
                 />
               </DialogContent>
             </Dialog>
-            <Button variant="ghost" size="icon" onClick={handleDelete}>
+            <Button variant="ghost" size="icon" onClick={handleDelete} aria-label="Delete">
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
@@ -114,6 +119,12 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
           )}
         </div>
       </CardContent>
+
+      <ReminderViewDialog
+        reminder={reminder}
+        open={isViewOpen}
+        onOpenChange={setIsViewOpen}
+      />
     </Card>
   )
 }

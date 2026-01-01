@@ -32,7 +32,7 @@ export function ReminderForm({ onSubmit, isLoading, defaultValues }: ReminderFor
           title: defaultValues.title,
           message: defaultValues.message,
           phoneNumber: defaultValues.phoneNumber,
-          scheduledFor: new Date(defaultValues.scheduledFor).toISOString().slice(0, 16),
+          scheduledFor: defaultValues.scheduledFor.slice(0, 16),
           timezone: defaultValues.timezone,
         }
       : {
@@ -84,7 +84,7 @@ export function ReminderForm({ onSubmit, isLoading, defaultValues }: ReminderFor
         <Input
           id="phoneNumber"
           type="tel"
-          placeholder="+14155552671"
+          placeholder="+18263349907"
           {...register("phoneNumber")}
           className={errors.phoneNumber ? "border-destructive" : ""}
         />
@@ -92,7 +92,7 @@ export function ReminderForm({ onSubmit, isLoading, defaultValues }: ReminderFor
           <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>
         )}
         <p className="text-xs text-muted-foreground">
-          Use E.164 format (e.g., +14155552671)
+          Use E.164 format (e.g., +18263349907)
         </p>
       </div>
 

@@ -242,7 +242,7 @@ The backend uses **APScheduler** with a background scheduler:
 4. **Fill the form**:
    - **Title**: "Test Call"
    - **Message**: "This is a test reminder. It's working!"
-   - **Phone Number**: Your phone in E.164 format (e.g., `+14155552671`)
+   - **Phone Number**: Your phone in E.164 format (e.g., `+18263349907`)
    - **Date & Time**: 2 minutes from now
    - **Timezone**: Your timezone
 5. **Click** "Create Reminder"
@@ -253,7 +253,7 @@ The backend uses **APScheduler** with a background scheduler:
 
 ### Phone Number Format
 Always use **E.164 format**:
-- ✅ `+14155552671` (US)
+- ✅ `+18263349907` (US)
 - ✅ `+442071234567` (UK)
 - ✅ `+33123456789` (France)
 - ❌ `4155552671` (Missing +)
@@ -331,7 +331,7 @@ curl -X POST http://localhost:8000/reminders \
   -d '{
     "title": "Morning Standup",
     "message": "Time for the daily standup meeting",
-    "phoneNumber": "+14155552671",
+    "phoneNumber": "+18263349907",
     "scheduledFor": "2024-01-15T09:00:00Z",
     "timezone": "America/New_York"
   }'
@@ -343,7 +343,7 @@ curl -X POST http://localhost:8000/reminders \
   "id": "abc123",
   "title": "Morning Standup",
   "message": "Time for the daily standup meeting",
-  "phoneNumber": "+14155552671",
+  "phoneNumber": "+18263349907",
   "scheduledFor": "2024-01-15T09:00:00Z",
   "timezone": "America/New_York",
   "status": "scheduled",
