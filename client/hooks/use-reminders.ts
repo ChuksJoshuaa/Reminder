@@ -10,6 +10,8 @@ export function useReminders() {
     queryKey: QUERY_KEY,
     queryFn: reminderApi.getAll,
     refetchInterval: 10000,
+    staleTime: 0,
+    refetchOnMount: true,
   })
 }
 
