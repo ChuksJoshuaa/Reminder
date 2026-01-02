@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, cast
 from app.database import get_db
 from app.models.reminder import Reminder, ReminderStatus
 from app.models.call_log import CallLog
 from app.schemas.reminder import ReminderCreate, ReminderUpdate, ReminderResponse
-from app.schemas.call_log import CallLogResponse
+from app.schemas.call_log import CallLogResponse, CallStatus as CallStatusLiteral
 from pydantic import BaseModel
 import uuid
 from datetime import datetime, timedelta
@@ -92,7 +92,7 @@ def get_call_logs(reminder_id: str, db: Session = Depends(get_db)):
             id=log.id,
             reminderId=log.reminder_id,
             attemptedAt=log.attempted_at.isoformat(),
-            status=log.status.value,
+            status=cast(CallStatusLiteral, log.status.value if hasattr(log.status, 'value') else log.status),
             responseData=log.response_data,
             errorMessage=log.error_message
         )

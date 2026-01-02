@@ -13,14 +13,14 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useReminders, useCreateReminder } from "@/hooks/use-reminders"
 import type { ReminderFormData } from "@/lib/validation"
 import type { ReminderStatus } from "@/types"
-import { Plus, Search } from "lucide-react"
+import { Plus, Search, RefreshCw } from "lucide-react"
 
 export default function Home() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState<ReminderStatus | "all">("all")
 
-  const { data: reminders, isLoading } = useReminders()
+  const { data: reminders, isLoading, refetch } = useReminders()
   const createReminder = useCreateReminder()
 
   const handleCreate = (data: ReminderFormData) => {
@@ -73,7 +73,18 @@ export default function Home() {
         <header className="mb-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight mb-2">Call Me Reminder</h1>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-4xl font-bold tracking-tight">Call Me Reminder</h1>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => refetch()}
+                  disabled={isLoading}
+                  className="h-8 w-8"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
               <p className="text-muted-foreground">
                 Never miss important moments with automated phone reminders
               </p>
