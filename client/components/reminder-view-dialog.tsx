@@ -4,7 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge"
 import type { Reminder } from "@/types"
 import { formatDistanceToNow } from "date-fns"
-import { Calendar, Clock, Phone, MessageSquare, Globe } from "lucide-react"
+import { Calendar, Clock, Phone, MessageSquare, Globe, AlertCircle, CheckCircle2, Activity } from "lucide-react"
+import { useCallLogs } from "@/hooks/use-reminders"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface ReminderViewDialogProps {
   reminder: Reminder | null
@@ -15,6 +17,7 @@ interface ReminderViewDialogProps {
 export function ReminderViewDialog({ reminder, open, onOpenChange }: ReminderViewDialogProps) {
   if (!reminder) return null
 
+  const { data: callLogs, isLoading: isLoadingLogs } = useCallLogs(reminder.id)
   const scheduledDate = new Date(reminder.scheduledFor)
   const statusColors = {
     scheduled: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -107,6 +110,51 @@ export function ReminderViewDialog({ reminder, open, onOpenChange }: ReminderVie
                   {formatDistanceToNow(scheduledDate, { addSuffix: true })}
                 </span>
               </p>
+            </div>
+          )}
+
+          {(reminder.status === "completed" || reminder.status === "failed") && (
+            <div className="pt-2 border-t">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="h-4 w-4 text-muted-foreground" />
+                <h4 className="text-sm font-medium">Call Attempts</h4>
+              </div>
+
+              {isLoadingLogs ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ) : callLogs && callLogs.length > 0 ? (
+                <div className="space-y-2">
+                  {callLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="rounded-lg border p-3 space-y-1"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {log.status === "success" ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 text-red-500" />
+                          )}
+                          <span className="text-sm font-medium capitalize">
+                            {log.status}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(log.attemptedAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                      {log.errorMessage && (
+                        <p className="text-xs text-red-500 mt-1">{log.errorMessage}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No call attempts yet</p>
+              )}
             </div>
           )}
 

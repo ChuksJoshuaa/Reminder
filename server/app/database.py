@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.models.reminder import Base
+from app.models.call_log import CallLog
 from typing import Generator
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./reminders.db"

@@ -4,8 +4,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.reminder import Reminder, ReminderStatus
+from app.models.call_log import CallLog, CallStatus
 from app.services.vapi_service import vapi_service
 import pytz
+import uuid
+import json
 
 class ReminderScheduler:
     def __init__(self):
@@ -46,6 +49,7 @@ class ReminderScheduler:
             db.close()
 
     def process_reminder(self, db: Session, reminder: Reminder):
+        call_log = None
         try:
             result = vapi_service.make_call(
                 phone_number=reminder.phone_number,
@@ -55,15 +59,47 @@ class ReminderScheduler:
             if result["success"]:
                 reminder.status = ReminderStatus.COMPLETED
                 print(f"Reminder {reminder.id} completed successfully")
+
+                call_log = CallLog(
+                    id=str(uuid.uuid4()),
+                    reminder_id=reminder.id,
+                    attempted_at=datetime.utcnow(),
+                    status=CallStatus.SUCCESS,
+                    response_data=json.dumps(result.get("data", {})),
+                    error_message=None
+                )
             else:
                 reminder.status = ReminderStatus.FAILED
-                print(f"Reminder {reminder.id} failed: {result.get('error')}")
+                error_msg = result.get("error", "Unknown error")
+                print(f"Reminder {reminder.id} failed: {error_msg}")
 
+                call_log = CallLog(
+                    id=str(uuid.uuid4()),
+                    reminder_id=reminder.id,
+                    attempted_at=datetime.utcnow(),
+                    status=CallStatus.FAILED,
+                    response_data=None,
+                    error_message=error_msg
+                )
+
+            if call_log:
+                db.add(call_log)
             db.commit()
 
         except Exception as e:
             reminder.status = ReminderStatus.FAILED
+            error_msg = str(e)
+
+            call_log = CallLog(
+                id=str(uuid.uuid4()),
+                reminder_id=reminder.id,
+                attempted_at=datetime.utcnow(),
+                status=CallStatus.FAILED,
+                response_data=None,
+                error_message=error_msg
+            )
+            db.add(call_log)
             db.commit()
-            print(f"Error processing reminder {reminder.id}: {str(e)}")
+            print(f"Error processing reminder {reminder.id}: {error_msg}")
 
 reminder_scheduler = ReminderScheduler()

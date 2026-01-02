@@ -3,14 +3,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trash2, Edit, Phone, Clock, Calendar, Eye } from "lucide-react"
+import { Trash2, Edit, Phone, Clock, Calendar, Eye, Timer } from "lucide-react"
 import type { Reminder, ReminderStatus } from "@/types"
 import { formatDateTime, getTimeRemaining, isReminderDue } from "@/lib/date-utils"
 import { maskPhoneNumber } from "@/lib/validation"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { ReminderForm } from "./reminder-form"
 import { ReminderViewDialog } from "./reminder-view-dialog"
-import { useUpdateReminder, useDeleteReminder } from "@/hooks/use-reminders"
+import { useUpdateReminder, useDeleteReminder, useSnoozeReminder } from "@/hooks/use-reminders"
 import type { ReminderFormData } from "@/lib/validation"
 import { useState } from "react"
 
@@ -27,8 +27,10 @@ const statusConfig: Record<ReminderStatus, { variant: "default" | "success" | "d
 export function ReminderCard({ reminder }: ReminderCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isViewOpen, setIsViewOpen] = useState(false)
+  const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
   const updateReminder = useUpdateReminder()
   const deleteReminder = useDeleteReminder()
+  const snoozeReminder = useSnoozeReminder()
 
   const handleUpdate = (data: ReminderFormData) => {
     updateReminder.mutate(
@@ -54,9 +56,17 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
     }
   }
 
+  const handleSnooze = (minutes: number) => {
+    snoozeReminder.mutate(
+      { id: reminder.id, minutes },
+      { onSuccess: () => setIsSnoozeOpen(false) }
+    )
+  }
+
   const isDue = isReminderDue(reminder.scheduledFor)
   const timeRemaining = getTimeRemaining(reminder.scheduledFor)
   const config = statusConfig[reminder.status]
+  const canSnooze = reminder.status === "failed" || reminder.status === "completed"
 
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
@@ -72,6 +82,11 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
             <Button variant="ghost" size="icon" onClick={() => setIsViewOpen(true)}>
               <Eye className="h-4 w-4" />
             </Button>
+            {canSnooze && (
+              <Button variant="ghost" size="icon" onClick={() => setIsSnoozeOpen(true)}>
+                <Timer className="h-4 w-4" />
+              </Button>
+            )}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" disabled={reminder.status !== "scheduled"}>
@@ -125,6 +140,49 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
         open={isViewOpen}
         onOpenChange={setIsViewOpen}
       />
+
+      <Dialog open={isSnoozeOpen} onOpenChange={setIsSnoozeOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Snooze Reminder</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3 py-4">
+            <Button
+              variant="outline"
+              onClick={() => handleSnooze(5)}
+              disabled={snoozeReminder.isPending}
+            >
+              5 minutes
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleSnooze(15)}
+              disabled={snoozeReminder.isPending}
+            >
+              15 minutes
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleSnooze(30)}
+              disabled={snoozeReminder.isPending}
+            >
+              30 minutes
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleSnooze(60)}
+              disabled={snoozeReminder.isPending}
+            >
+              1 hour
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsSnoozeOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

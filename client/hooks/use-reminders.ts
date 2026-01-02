@@ -69,3 +69,28 @@ export function useDeleteReminder() {
     },
   })
 }
+
+export function useCallLogs(reminderId: string) {
+  return useQuery({
+    queryKey: [...QUERY_KEY, reminderId, "call-logs"],
+    queryFn: () => reminderApi.getCallLogs(reminderId),
+    enabled: !!reminderId,
+  })
+}
+
+export function useSnoozeReminder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, minutes }: { id: string; minutes: number }) =>
+      reminderApi.snooze(id, minutes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+      toast.success("Reminder snoozed successfully")
+    },
+    onError: (error) => {
+      toast.error("Failed to snooze reminder")
+      console.error("Snooze reminder error:", error)
+    },
+  })
+}

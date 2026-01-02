@@ -33,3 +33,14 @@ export interface ReminderFilters {
   status?: ReminderStatus | "all"
   search?: string
 }
+
+export type CallStatus = "success" | "failed"
+
+export interface CallLog {
+  id: string
+  reminderId: string
+  attemptedAt: string
+  status: CallStatus
+  responseData: string | null
+  errorMessage: string | null
+}

@@ -287,7 +287,6 @@ The E2E tests cover:
 - ✅ Filtering by status
 - ✅ Search functionality
 - ✅ Deleting reminders
-- ✅ Theme toggle
 - ✅ Empty states
 - ✅ Loading states
 

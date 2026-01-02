@@ -3,9 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.models.reminder import Reminder, ReminderStatus
+from app.models.call_log import CallLog
 from app.schemas.reminder import ReminderCreate, ReminderUpdate, ReminderResponse
+from app.schemas.call_log import CallLogResponse
+from pydantic import BaseModel
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 
 router = APIRouter(prefix="/reminders", tags=["reminders"])
 
@@ -72,3 +76,53 @@ def delete_reminder(reminder_id: str, db: Session = Depends(get_db)):
     db.commit()
 
     return None
+
+@router.get("/{reminder_id}/call-logs", response_model=List[CallLogResponse])
+def get_call_logs(reminder_id: str, db: Session = Depends(get_db)):
+    reminder = db.query(Reminder).filter(Reminder.id == reminder_id).first()
+    if not reminder:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    call_logs = db.query(CallLog).filter(
+        CallLog.reminder_id == reminder_id
+    ).order_by(CallLog.attempted_at.desc()).all()
+
+    return [
+        CallLogResponse(
+            id=log.id,
+            reminderId=log.reminder_id,
+            attemptedAt=log.attempted_at.isoformat(),
+            status=log.status.value,
+            responseData=log.response_data,
+            errorMessage=log.error_message
+        )
+        for log in call_logs
+    ]
+
+class SnoozeRequest(BaseModel):
+    minutes: int
+
+@router.post("/{reminder_id}/snooze", response_model=ReminderResponse)
+def snooze_reminder(
+    reminder_id: str,
+    snooze_data: SnoozeRequest,
+    db: Session = Depends(get_db)
+):
+    reminder = db.query(Reminder).filter(Reminder.id == reminder_id).first()
+    if not reminder:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    if snooze_data.minutes < 1 or snooze_data.minutes > 1440:
+        raise HTTPException(status_code=400, detail="Snooze minutes must be between 1 and 1440 (24 hours)")
+
+    tz = pytz.timezone(reminder.timezone)
+    current_utc = datetime.now(pytz.UTC)
+    new_scheduled_utc = current_utc + timedelta(minutes=snooze_data.minutes)
+
+    reminder.scheduled_for = new_scheduled_utc.replace(tzinfo=None)
+    reminder.status = ReminderStatus.SCHEDULED
+
+    db.commit()
+    db.refresh(reminder)
+
+    return ReminderResponse.from_orm_with_timezone(reminder)
