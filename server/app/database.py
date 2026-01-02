@@ -1,10 +1,14 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from app.models.reminder import Base
-from app.models.call_log import CallLog
+import os
 from typing import Generator
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./reminders.db"
+from app.models.call_log import CallLog
+from app.models.reminder import Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
+__all__ = ["Base", "CallLog", "engine", "SessionLocal", "init_db", "get_db"]
+
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./reminders.db")
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
