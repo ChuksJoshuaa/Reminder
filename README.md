@@ -1,5 +1,7 @@
 # Call Me Reminder - Take-Home Project
 
+<img src="https://res.cloudinary.com/chuksmbanaso/image/upload/v1767320451/Screenshot_2026-01-02_at_03.19.22_tbdnkg.png" title="Image" alt="image">
+
 A production-ready reminder application that automatically calls your phone and speaks your reminder message at the scheduled time.
 
 **Live Demo**: Create a reminder → System calls you → AI speaks your message
