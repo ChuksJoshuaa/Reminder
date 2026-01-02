@@ -87,11 +87,16 @@ def get_call_logs(reminder_id: str, db: Session = Depends(get_db)):
         CallLog.reminder_id == reminder_id
     ).order_by(CallLog.attempted_at.desc()).all()
 
+    # Get reminder timezone for conversion
+    tz = pytz.timezone(reminder.timezone)
+
     return [
         CallLogResponse(
             id=log.id,
             reminderId=log.reminder_id,
-            attemptedAt=log.attempted_at.isoformat(),
+            attemptedAt=(
+                pytz.UTC.localize(log.attempted_at) if log.attempted_at.tzinfo is None else log.attempted_at
+            ).astimezone(tz).strftime("%Y-%m-%dT%H:%M:%S"),
             status=cast(CallStatusLiteral, log.status.value if hasattr(log.status, 'value') else log.status),
             responseData=log.response_data,
             errorMessage=log.error_message

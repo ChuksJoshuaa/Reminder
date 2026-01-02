@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
-from datetime import datetime
-from typing import Literal, Any
 import re
+from datetime import datetime
+from typing import Any, Literal
+
 import pytz
+from pydantic import (BaseModel, ConfigDict, Field, field_validator,
+                      model_validator)
 
 ReminderStatus = Literal["scheduled", "completed", "failed"]
 
@@ -78,8 +80,15 @@ class ReminderResponse(BaseModel):
     @classmethod
     def from_orm_with_timezone(cls, db_reminder: Any) -> "ReminderResponse":
         tz = pytz.timezone(db_reminder.timezone)
+
         utc_scheduled = pytz.UTC.localize(db_reminder.scheduled_for) if db_reminder.scheduled_for.tzinfo is None else db_reminder.scheduled_for
         local_scheduled = utc_scheduled.astimezone(tz)
+
+        utc_created = pytz.UTC.localize(db_reminder.created_at) if db_reminder.created_at.tzinfo is None else db_reminder.created_at
+        local_created = utc_created.astimezone(tz)
+
+        utc_updated = pytz.UTC.localize(db_reminder.updated_at) if db_reminder.updated_at.tzinfo is None else db_reminder.updated_at
+        local_updated = utc_updated.astimezone(tz)
 
         return cls(
             id=db_reminder.id,
@@ -89,6 +98,6 @@ class ReminderResponse(BaseModel):
             scheduledFor=local_scheduled.strftime("%Y-%m-%dT%H:%M:%S"),
             timezone=db_reminder.timezone,
             status=db_reminder.status.value,
-            createdAt=db_reminder.created_at.isoformat(),
-            updatedAt=db_reminder.updated_at.isoformat()
+            createdAt=local_created.strftime("%Y-%m-%dT%H:%M:%S"),
+            updatedAt=local_updated.strftime("%Y-%m-%dT%H:%M:%S")
         )
