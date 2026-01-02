@@ -20,7 +20,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState<ReminderStatus | "all">("all")
 
-  const { data: reminders, isLoading, refetch } = useReminders()
+  const { data: reminders, isLoading, isFetching, refetch } = useReminders()
   const createReminder = useCreateReminder()
 
   const handleCreate = (data: ReminderFormData) => {
@@ -29,7 +29,7 @@ export default function Home() {
         title: data.title,
         message: data.message,
         phoneNumber: data.phoneNumber,
-        scheduledFor: new Date(data.scheduledFor).toISOString(),
+        scheduledFor: data.scheduledFor,
         timezone: data.timezone,
       },
       {
@@ -79,10 +79,11 @@ export default function Home() {
                   variant="ghost"
                   size="icon"
                   onClick={() => refetch()}
-                  disabled={isLoading}
+                  disabled={isFetching}
                   className="h-8 w-8"
+                  title="Refresh reminders"
                 >
-                  <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
               <p className="text-muted-foreground">
